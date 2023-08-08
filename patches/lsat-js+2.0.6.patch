@@ -1,0 +1,230 @@
+diff --git a/node_modules/lsat-js/.DS_Store b/node_modules/lsat-js/.DS_Store
+new file mode 100644
+index 0000000..066e21f
+Binary files /dev/null and b/node_modules/lsat-js/.DS_Store differ
+diff --git a/node_modules/lsat-js/src/.DS_Store b/node_modules/lsat-js/src/.DS_Store
+new file mode 100644
+index 0000000..5008ddf
+Binary files /dev/null and b/node_modules/lsat-js/src/.DS_Store differ
+diff --git a/node_modules/lsat-js/src/caveat.ts b/node_modules/lsat-js/src/caveat.ts
+index 31c3962..c4eeeb1 100644
+--- a/node_modules/lsat-js/src/caveat.ts
++++ b/node_modules/lsat-js/src/caveat.ts
+@@ -2,6 +2,7 @@
+  * @file Provides utilities for managing, analyzing, and validating caveats
+  * @author Buck Perley
+  */
++/* tslint:disable:max-classes-per-file */
+ import assert from 'bsert'
+ import { CaveatOptions, Satisfier } from './types'
+ 
+@@ -127,13 +128,13 @@ export function hasCaveat(
+   else caveat = c
+ 
+   const condition = caveat.condition
+-  if (macaroon.c == undefined) {
++  if (macaroon.c === undefined) {
+     return false
+   }
+   let value
+   macaroon.c.forEach((packet: MacaroonJSONV2.Caveat) => {
+     try {
+-      if (packet.i != undefined) {
++      if (packet.i !== undefined) {
+         const test = Caveat.decode(packet.i)
+         if (condition === test.condition) value = test.value
+       }
+diff --git a/node_modules/lsat-js/src/helpers.ts b/node_modules/lsat-js/src/helpers.ts
+index f7dc984..fece707 100644
+--- a/node_modules/lsat-js/src/helpers.ts
++++ b/node_modules/lsat-js/src/helpers.ts
+@@ -1,20 +1,21 @@
++
+ import bolt11 from 'bolt11'
+ import assert from 'bsert'
+ import { MacaroonClass } from './types';
+ import * as Macaroon from 'macaroon'
++import util from 'util';
+ 
+ let TextEncoder
+ if (typeof window !== 'undefined' && window && window.TextEncoder) {
+   TextEncoder = window.TextEncoder;
+ } else {
+-  // No window.TextEncoder if it's node.js.
+-  const util = require('util');
++
+   TextEncoder = util.TextEncoder;
+ }
+ 
+ export const utf8Encoder = new TextEncoder();
+ export const isValue = (x: string | null | undefined): boolean => x !== undefined && x !== null;
+-export const stringToBytes = (s: string | null | undefined): Uint8Array => isValue(s) ? utf8Encoder.encode(s) : s;
++export const stringToBytes = (s: string | null | undefined): Uint8Array => isValue(s) ? utf8Encoder.encode(s) : null;
+ 
+ 
+ /**
+diff --git a/node_modules/lsat-js/src/identifier.ts b/node_modules/lsat-js/src/identifier.ts
+index ba6f716..b6e4274 100644
+--- a/node_modules/lsat-js/src/identifier.ts
++++ b/node_modules/lsat-js/src/identifier.ts
+@@ -1,7 +1,9 @@
+-const assert = require('assert')
+-const bufio = require('bufio')
++/* tslint:disable:max-classes-per-file */
++
++import assert from 'assert'
++import bufio from 'bufio'
+ import crypto from 'crypto'
+-import uuidv4 from 'uuid/v4'
++import { v4 as uuidv4 } from 'uuid';
+ import * as Macaroon from 'macaroon'
+ 
+ import { IdentifierOptions } from './types'
+@@ -146,9 +148,9 @@ export class Identifier extends bufio.Struct {
+ export const decodeIdentifierFromMacaroon = (raw: string): string => {
+   const macaroon = Macaroon.importMacaroon(raw)
+   let identifier = macaroon._exportAsJSONObjectV2().i
+-  if (identifier == undefined) {
++  if (identifier === undefined) {
+     identifier = macaroon._exportAsJSONObjectV2().i64
+-    if (identifier == undefined) {
++    if (identifier === undefined) {
+       throw new Error(`Problem parsing macaroon identifier`)
+     }
+   }
+diff --git a/node_modules/lsat-js/src/lsat.ts b/node_modules/lsat-js/src/lsat.ts
+index bee64b2..f889ec1 100644
+--- a/node_modules/lsat-js/src/lsat.ts
++++ b/node_modules/lsat-js/src/lsat.ts
+@@ -1,6 +1,5 @@
+-const assert = require('bsert')
+-const bufio = require('bufio')
+-
++import assert from 'assert'
++import bufio from 'bufio'
+ import crypto from 'crypto'
+ import * as Macaroon from 'macaroon'
+ 
+@@ -50,7 +49,7 @@ export class Lsat extends bufio.Struct {
+   routingFeePaid: number | null
+   invoiceAmount: number
+ 
+-  static type = 'LSAT'
++  static type = 'L402'
+ 
+   constructor(options: LsatOptions) {
+     super(options)
+@@ -154,11 +153,11 @@ export class Lsat extends bufio.Struct {
+ 
+     const caveatPackets = Macaroon.importMacaroon(macaroon)._exportAsJSONObjectV2().c
+     const expirationCaveats = []
+-    if (caveatPackets == undefined) {
++    if (caveatPackets === undefined) {
+       return 0
+     }
+     for (const cav of caveatPackets) {
+-      if (cav.i == undefined) {
++      if (cav.i === undefined) {
+         continue
+       }
+       const caveat = Caveat.decode(cav.i)
+@@ -223,11 +222,11 @@ export class Lsat extends bufio.Struct {
+   getCaveats(): Caveat[] {
+     const caveats: Caveat[] = []
+     const caveatPackets = this.getMacaroon().c
+-    if (caveatPackets == undefined){
++    if (caveatPackets === undefined){
+       return caveats
+     }
+     for (const cav of caveatPackets) {
+-      if (cav.i == undefined) {
++      if (cav.i === undefined) {
+         continue
+       }
+       caveats.push(Caveat.decode(cav.i))
+@@ -257,7 +256,7 @@ export class Lsat extends bufio.Struct {
+       `Can't create a challenge without a payment request/invoice`
+     )
+     const challenge = `macaroon="${this.baseMacaroon}", invoice="${this.invoice}"`
+-    return `LSAT ${challenge}`
++    return `L402 ${challenge}`
+   }
+ 
+   toJSON(): LsatJson {
+@@ -306,7 +305,8 @@ export class Lsat extends bufio.Struct {
+    */
+   static fromMacaroon(macaroon: string, invoice?: string): Lsat {
+     assert(typeof macaroon === 'string', 'Requires a raw macaroon string for macaroon to generate LSAT')
+-    let id: Identifier, identifier: string
++    let id: Identifier;
++    let identifier: string;
+     try {
+       identifier = decodeIdentifierFromMacaroon(macaroon)
+       id = Identifier.fromString(identifier)
+@@ -370,8 +370,8 @@ export class Lsat extends bufio.Struct {
+       'Expected at least two challenges in the LSAT: invoice and macaroon'
+     )
+ 
+-    let macaroon = '',
+-      invoice = ''
++    let macaroon = '';
++    let invoice = ''
+ 
+     // get the indexes of the challenge strings so that we can split them
+     // kind of convoluted but it takes into account challenges being in the wrong order
+@@ -411,7 +411,7 @@ export class Lsat extends bufio.Struct {
+       id: identifier,
+       baseMacaroon: macaroon,
+       paymentHash,
+-      invoice: invoice,
++      invoice,
+     })
+   }
+ 
+diff --git a/node_modules/lsat-js/src/macaroon.ts b/node_modules/lsat-js/src/macaroon.ts
+index bacd3a4..19d7d6f 100644
+--- a/node_modules/lsat-js/src/macaroon.ts
++++ b/node_modules/lsat-js/src/macaroon.ts
+@@ -59,7 +59,7 @@ export function verifyMacaroonCaveats(
+     const caveats = getCaveatsFromMacaroon(rawMac)
+ 
+     if (satisfiers && !Array.isArray(satisfiers)) satisfiers = [satisfiers]
+-    if (!caveats.length && (!satisfiers || !satisfiers.length)) return true;
++    if (!caveats.length && (!satisfiers )) return true;
+     // check caveats against satisfiers, including previous caveat checks
+     return verifyCaveats(caveats, satisfiers, options)
+   } catch (e) {
+diff --git a/node_modules/lsat-js/src/satisfiers.ts b/node_modules/lsat-js/src/satisfiers.ts
+index 2e28ab4..8f44acd 100644
+--- a/node_modules/lsat-js/src/satisfiers.ts
++++ b/node_modules/lsat-js/src/satisfiers.ts
+@@ -2,6 +2,7 @@
+  * @file Useful satisfiers that are independent of environment, for example,
+  * ones that don't require the request object in a server as these can be used anywhere.
+  */
++/* tslint:disable:no-shadowed-variable */
+ 
+ import {
+   Satisfier,
+@@ -33,7 +34,7 @@ export const expirationSatisfier: Satisfier = {
+   satisfyFinal: (caveat: Caveat) => {
+     if (caveat.condition !== 'expiration') return false
+     // if the expiration value is less than current time than satisfier is failed
+-    if (caveat.value < Date.now()) return false
++    if (caveat.value as number < Date.now()) return false
+     return true
+   },
+ }
+diff --git a/node_modules/lsat-js/src/service.ts b/node_modules/lsat-js/src/service.ts
+index 79b0bda..b6452ef 100644
+--- a/node_modules/lsat-js/src/service.ts
++++ b/node_modules/lsat-js/src/service.ts
+@@ -13,7 +13,7 @@
+  *  loop_out_monthly_volume_sats = 200000000
+  *
+  */
+-
++/* tslint:disable:max-classes-per-file */
+ import bufio from 'bufio'
+ import { Caveat } from './caveat'
+ 
