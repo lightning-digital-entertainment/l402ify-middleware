@@ -1,6 +1,6 @@
 {
   "name": "l402ify-middleware",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A express middleware to l402ify your routes",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
