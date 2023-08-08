@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@types/express": "^4.17.17",
-    "alby-tools": "^3.2.1",
     "light-bolt11-decoder": "^3.0.0",
     "lsat-js": "^2.0.6"
   }
