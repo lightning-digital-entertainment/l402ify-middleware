@@ -6,9 +6,9 @@
     <br/>
     <!-- <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a> -->
     <!-- · -->
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
+    <a href="https://github.com/lightning-digital-entertainment/l402ify-middleware/issues">Report Bug</a>
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
+    <a href="https://github.com/lightning-digital-entertainment/l402ify-middleware/issues">Request Feature</a>
   </p>
 </div>
 
