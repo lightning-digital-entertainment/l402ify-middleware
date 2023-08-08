@@ -2,7 +2,7 @@
 -----
 
   <p>
-    A L402 middleware to protect your express routes.
+    An express middleware to add L402 pay gates to your routes, using only a Lightning Address.
     <br/>
     <!-- <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a> -->
     <!-- · -->
@@ -14,7 +14,7 @@
 
 # Getting started
 
-## Installation
+## Installationnpx 
 
 Download an install via npm:
 
@@ -22,7 +22,7 @@ Download an install via npm:
 
 ## Adding it to your projects
 
-Simply add and configure the middleware for the routes that should be protected with L402:
+Simply add and configure the middleware for the routes that should be protected with L402.
 
 ```js
 import express, { Request, Response, Router } from "express";

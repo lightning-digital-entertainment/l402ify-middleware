@@ -1,11 +1,460 @@
 diff --git a/node_modules/lsat-js/.DS_Store b/node_modules/lsat-js/.DS_Store
 new file mode 100644
-index 0000000..066e21f
-Binary files /dev/null and b/node_modules/lsat-js/.DS_Store differ
+index 0000000..e69de29
+diff --git a/node_modules/lsat-js/dist/caveat.js b/node_modules/lsat-js/dist/caveat.js
+index 27e1377..98296bf 100644
+--- a/node_modules/lsat-js/dist/caveat.js
++++ b/node_modules/lsat-js/dist/caveat.js
+@@ -31,6 +31,7 @@ exports.verifyCaveats = exports.hasCaveat = exports.Caveat = exports.ErrInvalidC
+  * @file Provides utilities for managing, analyzing, and validating caveats
+  * @author Buck Perley
+  */
++/* tslint:disable:max-classes-per-file */
+ const bsert_1 = __importDefault(require("bsert"));
+ const Macaroon = __importStar(require("macaroon"));
+ /**
+@@ -133,13 +134,13 @@ function hasCaveat(rawMac, c) {
+     else
+         caveat = c;
+     const condition = caveat.condition;
+-    if (macaroon.c == undefined) {
++    if (macaroon.c === undefined) {
+         return false;
+     }
+     let value;
+     macaroon.c.forEach((packet) => {
+         try {
+-            if (packet.i != undefined) {
++            if (packet.i !== undefined) {
+                 const test = Caveat.decode(packet.i);
+                 if (condition === test.condition)
+                     value = test.value;
+diff --git a/node_modules/lsat-js/dist/helpers.d.ts b/node_modules/lsat-js/dist/helpers.d.ts
+index f3049d8..e85ceb3 100644
+--- a/node_modules/lsat-js/dist/helpers.d.ts
++++ b/node_modules/lsat-js/dist/helpers.d.ts
+@@ -1,4 +1,4 @@
+-export declare const utf8Encoder: any;
++export declare const utf8Encoder: TextEncoder;
+ export declare const isValue: (x: string | null | undefined) => boolean;
+ export declare const stringToBytes: (s: string | null | undefined) => Uint8Array;
+ /**
+diff --git a/node_modules/lsat-js/dist/helpers.js b/node_modules/lsat-js/dist/helpers.js
+index e768748..f7f61b1 100644
+--- a/node_modules/lsat-js/dist/helpers.js
++++ b/node_modules/lsat-js/dist/helpers.js
+@@ -6,19 +6,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.getIdFromRequest = exports.decode = exports.isHex = exports.stringToBytes = exports.isValue = exports.utf8Encoder = void 0;
+ const bolt11_1 = __importDefault(require("bolt11"));
+ const bsert_1 = __importDefault(require("bsert"));
++const util_1 = __importDefault(require("util"));
+ let TextEncoder;
+ if (typeof window !== 'undefined' && window && window.TextEncoder) {
+     TextEncoder = window.TextEncoder;
+ }
+ else {
+-    // No window.TextEncoder if it's node.js.
+-    const util = require('util');
+-    TextEncoder = util.TextEncoder;
++    TextEncoder = util_1.default.TextEncoder;
+ }
+ exports.utf8Encoder = new TextEncoder();
+ const isValue = (x) => x !== undefined && x !== null;
+ exports.isValue = isValue;
+-const stringToBytes = (s) => (0, exports.isValue)(s) ? exports.utf8Encoder.encode(s) : s;
++const stringToBytes = (s) => (0, exports.isValue)(s) ? exports.utf8Encoder.encode(s) : null;
+ exports.stringToBytes = stringToBytes;
+ /**
+  * @description Given a string, determine if it is in hex encoding or not.
+diff --git a/node_modules/lsat-js/dist/identifier.d.ts b/node_modules/lsat-js/dist/identifier.d.ts
+index d99d358..f7af64a 100644
+--- a/node_modules/lsat-js/dist/identifier.d.ts
++++ b/node_modules/lsat-js/dist/identifier.d.ts
+@@ -1,4 +1,4 @@
+-declare const bufio: any;
++import bufio from 'bufio';
+ import { IdentifierOptions } from './types';
+ export declare const LATEST_VERSION = 0;
+ export declare const TOKEN_ID_SIZE = 32;
+@@ -40,4 +40,3 @@ export declare class Identifier extends bufio.Struct {
+     read(br: any): this;
+ }
+ export declare const decodeIdentifierFromMacaroon: (raw: string) => string;
+-export {};
+diff --git a/node_modules/lsat-js/dist/identifier.js b/node_modules/lsat-js/dist/identifier.js
+index 395bc67..d08b574 100644
+--- a/node_modules/lsat-js/dist/identifier.js
++++ b/node_modules/lsat-js/dist/identifier.js
+@@ -1,4 +1,5 @@
+ "use strict";
++/* tslint:disable:max-classes-per-file */
+ var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+     if (k2 === undefined) k2 = k;
+     var desc = Object.getOwnPropertyDescriptor(m, k);
+@@ -27,10 +28,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
+ };
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.decodeIdentifierFromMacaroon = exports.Identifier = exports.ErrUnknownVersion = exports.TOKEN_ID_SIZE = exports.LATEST_VERSION = void 0;
+-const assert = require('assert');
+-const bufio = require('bufio');
++const assert_1 = __importDefault(require("assert"));
++const bufio_1 = __importDefault(require("bufio"));
+ const crypto_1 = __importDefault(require("crypto"));
+-const v4_1 = __importDefault(require("uuid/v4"));
++const uuid_1 = require("uuid");
+ const Macaroon = __importStar(require("macaroon"));
+ exports.LATEST_VERSION = 0;
+ exports.TOKEN_ID_SIZE = 32;
+@@ -54,7 +55,7 @@ exports.ErrUnknownVersion = ErrUnknownVersion;
+  * and is used to generate a macaroon.
+  * @extends Struct
+  */
+-class Identifier extends bufio.Struct {
++class Identifier extends bufio_1.default.Struct {
+     /**
+      *
+      * @param {Object} options - options to create a new Identifier
+@@ -75,12 +76,12 @@ class Identifier extends bufio.Struct {
+             throw new ErrUnknownVersion(options.version);
+         else if (options.version)
+             this.version = options.version;
+-        assert(typeof this.version === 'number', 'Identifier version must be a number');
+-        assert(options.paymentHash.length === 32, `Expected 32-byte hash, instead got ${options.paymentHash.length}`);
++        (0, assert_1.default)(typeof this.version === 'number', 'Identifier version must be a number');
++        (0, assert_1.default)(options.paymentHash.length === 32, `Expected 32-byte hash, instead got ${options.paymentHash.length}`);
+         this.paymentHash = options.paymentHash;
+         // TODO: generate random uuidv4 id (and hash to 32 to match length)
+         if (!options.tokenId) {
+-            const id = (0, v4_1.default)();
++            const id = (0, uuid_1.v4)();
+             this.tokenId = crypto_1.default
+                 .createHash('sha256')
+                 .update(Buffer.from(id))
+@@ -89,7 +90,7 @@ class Identifier extends bufio.Struct {
+         else {
+             this.tokenId = options.tokenId;
+         }
+-        assert(this.tokenId.length === exports.TOKEN_ID_SIZE, 'Token Id of unexpected size');
++        (0, assert_1.default)(this.tokenId.length === exports.TOKEN_ID_SIZE, 'Token Id of unexpected size');
+         return this;
+     }
+     /**
+@@ -119,7 +120,7 @@ class Identifier extends bufio.Struct {
+                 // write payment hash
+                 bw.writeHash(this.paymentHash);
+                 // check format of tokenId
+-                assert(Buffer.isBuffer(this.tokenId) &&
++                (0, assert_1.default)(Buffer.isBuffer(this.tokenId) &&
+                     this.tokenId.length === exports.TOKEN_ID_SIZE, `Token ID must be ${exports.TOKEN_ID_SIZE}-byte hash`);
+                 // write tokenId
+                 bw.writeBytes(this.tokenId);
+@@ -149,9 +150,9 @@ exports.Identifier = Identifier;
+ const decodeIdentifierFromMacaroon = (raw) => {
+     const macaroon = Macaroon.importMacaroon(raw);
+     let identifier = macaroon._exportAsJSONObjectV2().i;
+-    if (identifier == undefined) {
++    if (identifier === undefined) {
+         identifier = macaroon._exportAsJSONObjectV2().i64;
+-        if (identifier == undefined) {
++        if (identifier === undefined) {
+             throw new Error(`Problem parsing macaroon identifier`);
+         }
+     }
+diff --git a/node_modules/lsat-js/dist/lsat.d.ts b/node_modules/lsat-js/dist/lsat.d.ts
+index 1a6717d..7569ee1 100644
+--- a/node_modules/lsat-js/dist/lsat.d.ts
++++ b/node_modules/lsat-js/dist/lsat.d.ts
+@@ -1,8 +1,8 @@
+-declare const bufio: any;
++import bufio from 'bufio';
+ import * as Macaroon from 'macaroon';
+ import { Caveat } from '.';
+ import { LsatOptions } from './types';
+-declare type LsatJson = {
++type LsatJson = {
+     validUntil: number;
+     isPending: boolean;
+     isSatisfied: boolean;
+diff --git a/node_modules/lsat-js/dist/lsat.js b/node_modules/lsat-js/dist/lsat.js
+index 2d4f81c..64c3b49 100644
+--- a/node_modules/lsat-js/dist/lsat.js
++++ b/node_modules/lsat-js/dist/lsat.js
+@@ -27,8 +27,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
+ };
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.Lsat = exports.parseChallengePart = void 0;
+-const assert = require('bsert');
+-const bufio = require('bufio');
++const assert_1 = __importDefault(require("assert"));
++const bufio_1 = __importDefault(require("bufio"));
+ const crypto_1 = __importDefault(require("crypto"));
+ const Macaroon = __importStar(require("macaroon"));
+ const _1 = require(".");
+@@ -37,12 +37,12 @@ const helpers_1 = require("./helpers");
+ function parseChallengePart(challenge) {
+     let macaroon;
+     const separatorIndex = challenge.indexOf('=');
+-    assert(separatorIndex > -1, 'Incorrectly encoded challenge. Missing "=" separator.');
++    (0, assert_1.default)(separatorIndex > -1, 'Incorrectly encoded challenge. Missing "=" separator.');
+     // slice off `[challengeType]=`
+     const splitIndex = challenge.length - 1 - separatorIndex;
+     macaroon = challenge.slice(-splitIndex);
+-    assert(macaroon.length, 'Incorrectly encoded macaroon challenge');
+-    assert(macaroon[0] === '"' && macaroon[macaroon.length - 1] === '"', 'Incorectly encoded challenge, challenges must be enclosed in double quotes.');
++    (0, assert_1.default)(macaroon.length, 'Incorrectly encoded macaroon challenge');
++    (0, assert_1.default)(macaroon[0] === '"' && macaroon[macaroon.length - 1] === '"', 'Incorectly encoded challenge, challenges must be enclosed in double quotes.');
+     macaroon = macaroon.slice(1, macaroon.length - 1);
+     return macaroon;
+ }
+@@ -50,7 +50,7 @@ exports.parseChallengePart = parseChallengePart;
+ /**
+  * @description A a class for creating and converting LSATs
+  */
+-class Lsat extends bufio.Struct {
++class Lsat extends bufio_1.default.Struct {
+     constructor(options) {
+         super(options);
+         this.id = '';
+@@ -67,11 +67,11 @@ class Lsat extends bufio.Struct {
+             this.fromOptions(options);
+     }
+     fromOptions(options) {
+-        assert(typeof options.baseMacaroon === 'string', 'Require serialized macaroon');
++        (0, assert_1.default)(typeof options.baseMacaroon === 'string', 'Require serialized macaroon');
+         this.baseMacaroon = options.baseMacaroon;
+-        assert(typeof options.id === 'string', 'Require string id');
++        (0, assert_1.default)(typeof options.id === 'string', 'Require string id');
+         this.id = options.id;
+-        assert(typeof options.paymentHash === 'string', 'Require paymentHash');
++        (0, assert_1.default)(typeof options.paymentHash === 'string', 'Require paymentHash');
+         this.paymentHash = options.paymentHash;
+         const expiration = this.getExpirationFromMacaroon(options.baseMacaroon);
+         if (expiration)
+@@ -141,14 +141,14 @@ class Lsat extends bufio.Struct {
+     getExpirationFromMacaroon(macaroon) {
+         if (!macaroon)
+             macaroon = this.baseMacaroon;
+-        assert(macaroon, 'Missing macaroon');
++        (0, assert_1.default)(macaroon, 'Missing macaroon');
+         const caveatPackets = Macaroon.importMacaroon(macaroon)._exportAsJSONObjectV2().c;
+         const expirationCaveats = [];
+-        if (caveatPackets == undefined) {
++        if (caveatPackets === undefined) {
+             return 0;
+         }
+         for (const cav of caveatPackets) {
+-            if (cav.i == undefined) {
++            if (cav.i === undefined) {
+                 continue;
+             }
+             const caveat = _1.Caveat.decode(cav.i);
+@@ -167,12 +167,12 @@ class Lsat extends bufio.Struct {
+      * @param {string} preimage - 32-byte hex string of the preimage that is used as proof of payment of a lightning invoice
+      */
+     setPreimage(preimage) {
+-        assert((0, helpers_1.isHex)(preimage) && preimage.length === 64, 'Must pass valid 32-byte hash for lsat secret');
++        (0, assert_1.default)((0, helpers_1.isHex)(preimage) && preimage.length === 64, 'Must pass valid 32-byte hash for lsat secret');
+         const hash = crypto_1.default
+             .createHash('sha256')
+             .update(Buffer.from(preimage, 'hex'))
+             .digest('hex');
+-        assert(hash === this.paymentHash, "Hash of preimage did not match LSAT's paymentHash");
++        (0, assert_1.default)(hash === this.paymentHash, "Hash of preimage did not match LSAT's paymentHash");
+         this.paymentPreimage = preimage;
+     }
+     /**
+@@ -185,7 +185,7 @@ class Lsat extends bufio.Struct {
+      * @returns {void}
+      */
+     addFirstPartyCaveat(caveat) {
+-        assert(caveat instanceof _1.Caveat, 'Require a Caveat object to add to macaroon');
++        (0, assert_1.default)(caveat instanceof _1.Caveat, 'Require a Caveat object to add to macaroon');
+         const mac = Macaroon.importMacaroon(this.baseMacaroon);
+         mac.addFirstPartyCaveat(caveat.encode());
+         this.baseMacaroon = (0, _1.getRawMacaroon)(mac);
+@@ -197,11 +197,11 @@ class Lsat extends bufio.Struct {
+     getCaveats() {
+         const caveats = [];
+         const caveatPackets = this.getMacaroon().c;
+-        if (caveatPackets == undefined) {
++        if (caveatPackets === undefined) {
+             return caveats;
+         }
+         for (const cav of caveatPackets) {
+-            if (cav.i == undefined) {
++            if (cav.i === undefined) {
+                 continue;
+             }
+             caveats.push(_1.Caveat.decode(cav.i));
+@@ -225,9 +225,9 @@ class Lsat extends bufio.Struct {
+      * @returns {string}
+      */
+     toChallenge() {
+-        assert(this.invoice, `Can't create a challenge without a payment request/invoice`);
++        (0, assert_1.default)(this.invoice, `Can't create a challenge without a payment request/invoice`);
+         const challenge = `macaroon="${this.baseMacaroon}", invoice="${this.invoice}"`;
+-        return `LSAT ${challenge}`;
++        return `L402 ${challenge}`;
+     }
+     toJSON() {
+         return {
+@@ -246,14 +246,14 @@ class Lsat extends bufio.Struct {
+         };
+     }
+     addInvoice(invoice) {
+-        assert(this.paymentHash, 'Cannot add invoice data to an LSAT without paymentHash');
++        (0, assert_1.default)(this.paymentHash, 'Cannot add invoice data to an LSAT without paymentHash');
+         try {
+             const data = (0, helpers_1.decode)(invoice);
+             const { satoshis: tokens } = data;
+             const hashTag = data.tags.find((tag) => tag.tagName === 'payment_hash');
+-            assert(hashTag, 'Could not find payment hash on invoice request');
++            (0, assert_1.default)(hashTag, 'Could not find payment hash on invoice request');
+             const paymentHash = hashTag === null || hashTag === void 0 ? void 0 : hashTag.data;
+-            assert(paymentHash === this.paymentHash, 'paymentHash from invoice did not match LSAT');
++            (0, assert_1.default)(paymentHash === this.paymentHash, 'paymentHash from invoice did not match LSAT');
+             this.invoiceAmount = tokens || 0;
+             this.invoice = invoice;
+         }
+@@ -268,8 +268,9 @@ class Lsat extends bufio.Struct {
+      * @param {string} [invoice] - optional invoice which can provide other relevant information for the lsat
+      */
+     static fromMacaroon(macaroon, invoice) {
+-        assert(typeof macaroon === 'string', 'Requires a raw macaroon string for macaroon to generate LSAT');
+-        let id, identifier;
++        (0, assert_1.default)(typeof macaroon === 'string', 'Requires a raw macaroon string for macaroon to generate LSAT');
++        let id;
++        let identifier;
+         try {
+             identifier = (0, _1.decodeIdentifierFromMacaroon)(macaroon);
+             id = _1.Identifier.fromString(identifier);
+@@ -296,7 +297,7 @@ class Lsat extends bufio.Struct {
+      * @returns {Lsat}
+      */
+     static fromToken(token, invoice) {
+-        assert(token.includes(this.type), 'Token must include LSAT prefix');
++        (0, assert_1.default)(token.includes(this.type), 'Token must include LSAT prefix');
+         token = token.slice(this.type.length).trim();
+         const [macaroon, preimage] = token.split(':');
+         const lsat = Lsat.fromMacaroon(macaroon, invoice);
+@@ -319,8 +320,9 @@ class Lsat extends bufio.Struct {
+         if (challenges.length < 2)
+             challenges = challenge.split(' ');
+         // if we still don't have at least two, then there was a malformed header/challenge
+-        assert(challenges.length >= 2, 'Expected at least two challenges in the LSAT: invoice and macaroon');
+-        let macaroon = '', invoice = '';
++        (0, assert_1.default)(challenges.length >= 2, 'Expected at least two challenges in the LSAT: invoice and macaroon');
++        let macaroon = '';
++        let invoice = '';
+         // get the indexes of the challenge strings so that we can split them
+         // kind of convoluted but it takes into account challenges being in the wrong order
+         // and for excess challenges that we can ignore
+@@ -348,14 +350,14 @@ class Lsat extends bufio.Struct {
+             if (invoice.length && macaroon.length)
+                 break;
+         }
+-        assert(invoice.length && macaroon.length, 'Expected WWW-Authenticate challenge with macaroon and invoice data');
++        (0, assert_1.default)(invoice.length && macaroon.length, 'Expected WWW-Authenticate challenge with macaroon and invoice data');
+         const paymentHash = (0, helpers_1.getIdFromRequest)(invoice);
+         const identifier = (0, _1.decodeIdentifierFromMacaroon)(macaroon);
+         return new this({
+             id: identifier,
+             baseMacaroon: macaroon,
+             paymentHash,
+-            invoice: invoice,
++            invoice,
+         });
+     }
+     /**
+@@ -366,9 +368,9 @@ class Lsat extends bufio.Struct {
+     static fromHeader(header) {
+         // remove the token type prefix to get the challenge
+         const challenge = header.slice(this.type.length).trim();
+-        assert(header.length !== challenge.length, 'header missing token type prefix "LSAT"');
++        (0, assert_1.default)(header.length !== challenge.length, 'header missing token type prefix "LSAT"');
+         return Lsat.fromChallenge(challenge);
+     }
+ }
+ exports.Lsat = Lsat;
+-Lsat.type = 'LSAT';
++Lsat.type = 'L402';
+diff --git a/node_modules/lsat-js/dist/macaroon.js b/node_modules/lsat-js/dist/macaroon.js
+index 18d2c29..251c8a9 100644
+--- a/node_modules/lsat-js/dist/macaroon.js
++++ b/node_modules/lsat-js/dist/macaroon.js
+@@ -77,7 +77,7 @@ options = {}) {
+         const caveats = getCaveatsFromMacaroon(rawMac);
+         if (satisfiers && !Array.isArray(satisfiers))
+             satisfiers = [satisfiers];
+-        if (!caveats.length && (!satisfiers || !satisfiers.length))
++        if (!caveats.length && (!satisfiers))
+             return true;
+         // check caveats against satisfiers, including previous caveat checks
+         return (0, caveat_1.verifyCaveats)(caveats, satisfiers, options);
+diff --git a/node_modules/lsat-js/dist/satisfiers.js b/node_modules/lsat-js/dist/satisfiers.js
+index 7a3a49a..1f88098 100644
+--- a/node_modules/lsat-js/dist/satisfiers.js
++++ b/node_modules/lsat-js/dist/satisfiers.js
+@@ -3,6 +3,7 @@
+  * @file Useful satisfiers that are independent of environment, for example,
+  * ones that don't require the request object in a server as these can be used anywhere.
+  */
++/* tslint:disable:no-shadowed-variable */
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.createCapabilitiesSatisfier = exports.createServicesSatisfier = exports.expirationSatisfier = void 0;
+ const _1 = require(".");
+diff --git a/node_modules/lsat-js/dist/service.js b/node_modules/lsat-js/dist/service.js
+index 337d4e3..aed963d 100644
+--- a/node_modules/lsat-js/dist/service.js
++++ b/node_modules/lsat-js/dist/service.js
+@@ -1,4 +1,9 @@
+ "use strict";
++var __importDefault = (this && this.__importDefault) || function (mod) {
++    return (mod && mod.__esModule) ? mod : { "default": mod };
++};
++Object.defineProperty(exports, "__esModule", { value: true });
++exports.decodeCapabilitiesValue = exports.createNewCapabilitiesCaveat = exports.SERVICE_CAPABILITIES_SUFFIX = exports.encodeServicesCaveatValue = exports.decodeServicesCaveat = exports.SERVICES_CAVEAT_CONDITION = exports.Service = exports.InvalidCapabilitiesError = exports.InvalidServicesError = exports.NoServicesError = void 0;
+ /**
+  * @file Services are a special kind of caveat based off of
+  * the official lsat spec by
+@@ -14,11 +19,7 @@
+  *  loop_out_monthly_volume_sats = 200000000
+  *
+  */
+-var __importDefault = (this && this.__importDefault) || function (mod) {
+-    return (mod && mod.__esModule) ? mod : { "default": mod };
+-};
+-Object.defineProperty(exports, "__esModule", { value: true });
+-exports.decodeCapabilitiesValue = exports.createNewCapabilitiesCaveat = exports.SERVICE_CAPABILITIES_SUFFIX = exports.encodeServicesCaveatValue = exports.decodeServicesCaveat = exports.SERVICES_CAVEAT_CONDITION = exports.Service = exports.InvalidCapabilitiesError = exports.InvalidServicesError = exports.NoServicesError = void 0;
++/* tslint:disable:max-classes-per-file */
+ const bufio_1 = __importDefault(require("bufio"));
+ const caveat_1 = require("./caveat");
+ class NoServicesError extends Error {
+diff --git a/node_modules/lsat-js/dist/types/satisfier.d.ts b/node_modules/lsat-js/dist/types/satisfier.d.ts
+index 5d9ecd1..b12e3ea 100644
+--- a/node_modules/lsat-js/dist/types/satisfier.d.ts
++++ b/node_modules/lsat-js/dist/types/satisfier.d.ts
+@@ -7,7 +7,7 @@ import { Caveat } from '../caveat';
+  * @param {Object} options - optional object to be used to make evaluation, e.g. a request object in a server
+  * @returns {boolean}
+  */
+-export declare type SatisfyPrevious = (prev: Caveat, curr: Caveat, options?: any) => boolean;
++export type SatisfyPrevious = (prev: Caveat, curr: Caveat, options?: any) => boolean;
+ /**
+  * @typedef {function (caveat: Caveat, options: object): boolean} SatisfyFinal
+  * @description A satisfier function to evaluate if a caveat has been satisfied
+@@ -15,7 +15,7 @@ export declare type SatisfyPrevious = (prev: Caveat, curr: Caveat, options?: any
+  * @param {Object} options - optional object to be used to make evaluation, e.g. a request object in a server
+  * @returns boolean
+  */
+-export declare type SatisfyFinal = (caveat: Caveat, options?: any) => boolean;
++export type SatisfyFinal = (caveat: Caveat, options?: any) => boolean;
+ /**
+  * @typedef {Object} Satisfier
+  * @description Satisfier provides a generic interface to satisfy a caveat based on its
 diff --git a/node_modules/lsat-js/src/.DS_Store b/node_modules/lsat-js/src/.DS_Store
 new file mode 100644
-index 0000000..5008ddf
-Binary files /dev/null and b/node_modules/lsat-js/src/.DS_Store differ
+index 0000000..e69de29
 diff --git a/node_modules/lsat-js/src/caveat.ts b/node_modules/lsat-js/src/caveat.ts
 index 31c3962..c4eeeb1 100644
 --- a/node_modules/lsat-js/src/caveat.ts
@@ -35,7 +484,7 @@ index 31c3962..c4eeeb1 100644
          if (condition === test.condition) value = test.value
        }
 diff --git a/node_modules/lsat-js/src/helpers.ts b/node_modules/lsat-js/src/helpers.ts
-index f7dc984..fece707 100644
+index f7dc984..5f38601 100644
 --- a/node_modules/lsat-js/src/helpers.ts
 +++ b/node_modules/lsat-js/src/helpers.ts
 @@ -1,20 +1,21 @@
@@ -93,7 +542,7 @@ index ba6f716..b6e4274 100644
      }
    }
 diff --git a/node_modules/lsat-js/src/lsat.ts b/node_modules/lsat-js/src/lsat.ts
-index bee64b2..f889ec1 100644
+index bee64b2..9573fb9 100644
 --- a/node_modules/lsat-js/src/lsat.ts
 +++ b/node_modules/lsat-js/src/lsat.ts
 @@ -1,6 +1,5 @@
@@ -182,13 +631,13 @@ index bee64b2..f889ec1 100644
    }
  
 diff --git a/node_modules/lsat-js/src/macaroon.ts b/node_modules/lsat-js/src/macaroon.ts
-index bacd3a4..19d7d6f 100644
+index bacd3a4..eb98637 100644
 --- a/node_modules/lsat-js/src/macaroon.ts
 +++ b/node_modules/lsat-js/src/macaroon.ts
 @@ -59,7 +59,7 @@ export function verifyMacaroonCaveats(
      const caveats = getCaveatsFromMacaroon(rawMac)
- 
-     if (satisfiers && !Array.isArray(satisfiers)) satisfiers = [satisfiers]
+   
+     if (satisfiers && !Array.isArray(satisfiers)) satisfiers = [satisfiers] 
 -    if (!caveats.length && (!satisfiers || !satisfiers.length)) return true;
 +    if (!caveats.length && (!satisfiers )) return true;
      // check caveats against satisfiers, including previous caveat checks
