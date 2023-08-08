@@ -65,5 +65,3 @@ export async function getInvoiceFromAddress(
     const invoice = await getLnurlpInvoice(data, amountInSats);
     return invoice;
 }
-
-getInvoiceFromAddress('egge@getcurrent.io', 21)
